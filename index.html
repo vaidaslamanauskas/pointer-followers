@@ -1,0 +1,78 @@
+<html>
+<head>
+    
+  <style>
+    body {
+      background-color: #111;
+      margin: 0;
+      padding: 0;
+    }
+
+    .follower {
+      width: 20px;
+      height: 20px;
+      position: fixed;
+      transform-origin: center;
+      transition: transform 0.1s linear, opacity 1s;
+      pointer-events: none;
+      opacity: 0;
+
+      background-image: url(pointer.svg);
+      background-repeat: no-repeat;
+      background-size: contain;
+      background-position: center;
+    }
+  </style>
+</head>
+<body>
+
+  <script>
+    const numFollowers = 8;
+    const maxDelay = 60;
+    const positions = [];
+    const followers = [];
+    let hasMoved = false;
+
+    for (let i = 0; i < numFollowers; i++) {
+      const div = document.createElement("div");
+      div.classList.add("follower");
+      document.body.appendChild(div);
+
+      let delay = Math.floor(Math.random() * maxDelay) + 10;
+      let offsetX = (Math.random() - 0.5) * 25;
+      let offsetY = (Math.random() - 0.5) * 25;
+
+      followers.push({ element: div, delay, offsetX, offsetY });
+    }
+
+    document.addEventListener('mousemove', (e) => {
+      if (!hasMoved) {
+        hasMoved = true;
+        followers.forEach(follower => follower.element.style.opacity = 1);
+      }
+
+      positions.push({ x: e.clientX, y: e.clientY });
+
+      if (positions.length > maxDelay + 50) {
+        positions.shift();
+      }
+
+      followers.forEach(follower => {
+        let delayIndex = positions.length - 1 - follower.delay;
+        if (delayIndex >= 0) {
+          const prevPos = positions[delayIndex - 1] || positions[delayIndex];
+          const currentPos = positions[delayIndex];
+
+          if (prevPos && currentPos) {
+            let dx = currentPos.x - prevPos.x;
+            let dy = currentPos.y - prevPos.y;
+            let angle = Math.atan2(dy, dx) * (180 / Math.PI);
+
+            follower.element.style.transform = `translate(${currentPos.x + follower.offsetX}px, ${currentPos.y + follower.offsetY}px) rotate(${angle}deg)`;
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
